@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>更新帳單</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+</head>
+<body>
+<div th:replace="~{layout/navbar}"></div>
+<div class="container">
+    <h1 class="text-center">更新帳單</h1>
+    <form method="post" th:action="@{/bill/updateSend}" th:object="${bill}" class="form-horizontal">
+        <input type="hidden" th:field="*{id}" />
+        <input type="hidden" name="_method" value="post" />
+        
+        <div class="form-group">
+            <label for="name">名稱:</label>
+            <input type="text" id="name" th:field="*{name}" class="form-control" required />
+        </div>
+        <br />
+        
+        <div class="form-group">
+            <label for="amount">金額:</label>
+            <input type="number" id="amount" step="0.01" th:field="*{amount}" class="form-control" oninput="splitAmount()" />
+        </div>
+        <br />
+        <div class="form-group">
+            <label for="description">描述:</label>
+            <input type="text" id="description" th:field="*{description}" class="form-control" required />
+        </div>
+         <br />
+            <div class="form-group">
+                <label for="payer">先付錢的人:</label>
+                <select id="payer" name="payerId" class="form-control" required>
+                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.nickname}"></option>
+                </select>
+            </div>
+        <br />
+        <div class="form-group">
+            <label for="isManual">分配方式:</label>
+            <select id="isManual" name="isManual" class="form-control" onchange="toggleManualAmount()">
+                <option value="false">平均分配</option>
+                <option value="true">手動指定</option>
+            </select>
+        </div>
+        <br />
+        <div class="form-group">
+            <label for="participants">參與者:</label>
+            <div th:each="user : ${users}">
+                <input type="checkbox" name="participantIds" th:checked="${#lists.contains(bill.participants, user)}" th:value="${user.id}" onchange="splitAmount()" />
+                <span th:text="${user.nickname}"></span>
+                <br />
+                <label for="amounts">金額:</label>
+                <input type="number" step="0.01" name="amounts" class="participant-amount" readonly />
+            </div>
+        </div>
+        <br />
+        
+        <div class="form-group text-center">
+            <input type="submit" value="更新" class="btn btn-primary" />
+            <button type="button" class="btn btn-secondary" onclick="goToListPage()">返回</button>
+        </div>
+    </form>
+    <hr />
+    <h2 class="text-center">簡易計算機</h2>
+    <div class="form-group">
+        <label for="calculatorInput1">數字 1:</label>
+        <input type="number" id="calculatorInput1" class="form-control" />
+    </div>
+    <br />
+    <div class="form-group text-center">
+        <button class="btn btn-success" onclick="calculateSum()">加</button>
+        <button class="btn btn-success" onclick="calculateDifference()">減</button>
+        <button class="btn btn-success" onclick="calculateProduct()">乘</button>
+        <button class="btn btn-success" onclick="calculateQuotient()">除</button>
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="calculatorInput2">數字 2:</label>
+        <input type="number" id="calculatorInput2" class="form-control" />
+    </div>
+    <h3 class="text-center">結果: <span id="calculatorResult"></span></h3>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script>
+    function splitAmount() {
+        const amount = parseFloat(document.getElementById('amount').value);
+        const checkboxes = document.querySelectorAll('input[name="participantIds"]:checked');
+        const participantCount = checkboxes.length;
+        const isManual = document.getElementById('isManual').value === 'true';
+
+        if (!isManual && participantCount > 0) {
+            const perPersonAmount = amount / participantCount || 0;
+
+            const amountInputs = document.querySelectorAll('.participant-amount');
+            amountInputs.forEach(input => {
+                input.value = '';
+            });
+
+            checkboxes.forEach(checkbox => {
+                const amountInput = checkbox.parentElement.querySelector('.participant-amount');
+                amountInput.value = perPersonAmount.toFixed(2);
+            });
+        }
+    }
+
+    function toggleManualAmount() {
+        const isManual = document.getElementById('isManual').value === 'true';
+        const amountInputs = document.querySelectorAll('.participant-amount');
+        const amountField = document.getElementById('amount');
+        amountInputs.forEach(input => {
+            input.readOnly = !isManual;
+            if (!isManual) {
+                splitAmount();
+            } else {
+                input.value = '';
+            }
+        });
+
+        // 禁用或啟用金額欄位
+        amountField.required = !isManual;
+        if (isManual) {
+            amountField.value = '';
+        }
+    }
+
+    function calculateSum() {
+        const input1 = parseFloat(document.getElementById('calculatorInput1').value);
+        const input2 = parseFloat(document.getElementById('calculatorInput2').value);
+        const result = input1 + input2;
+        document.getElementById('calculatorResult').innerText = result;
+    }
+
+    function calculateDifference() {
+        const input1 = parseFloat(document.getElementById('calculatorInput1').value);
+        const input2 = parseFloat(document.getElementById('calculatorInput2').value);
+        const result = input1 - input2;
+        document.getElementById('calculatorResult').innerText = result;
+    }
+
+    function calculateProduct() {
+        const input1 = parseFloat(document.getElementById('calculatorInput1').value);
+        const input2 = parseFloat(document.getElementById('calculatorInput2').value);
+        const result = input1 * input2;
+        document.getElementById('calculatorResult').innerText = result;
+    }
+
+    function calculateQuotient() {
+        const input1 = parseFloat(document.getElementById('calculatorInput1').value);
+        const input2 = parseFloat(document.getElementById('calculatorInput2').value);
+        const result = input1 / input2;
+        document.getElementById('calculatorResult').innerText = result;
+    }
+
+    function goToListPage() {
+        window.location.href = '/bill/list';
+    }
+
+    // 初始化時計算每個參與者應分攤的金額
+    document.addEventListener('DOMContentLoaded', splitAmount);
+</script>
+</body>
+</html>

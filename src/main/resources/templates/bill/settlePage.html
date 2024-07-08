@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>結算頁面</title>
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+</head>
+<body>
+    <div th:replace="~{layout/navbar}"></div>
+
+    <div class="container">
+        <h2 class="text-center">先付錢的</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>用戶</th>
+                    <th>總金額</th>
+                    <th>圖片</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="bill : ${allBills}">
+                    <td th:text="${bill.payer.nickname}"></td>
+                    <td th:text="${bill.amount}"></td>
+                    <td>
+                        <img th:if="${bill.photo != null}" th:src="@{'/images/' + ${bill.photo.id}}" alt="Bill Image" width="100" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <hr />
+
+        <h2 class="text-center">待確認的付款</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>付款人</th>
+                    <th>收款人</th>
+                    <th>金額</th>
+                    <th>狀態</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="payment : ${pendingPayments}">
+                    <td th:text="${payment.payer.nickname}"></td>
+                    <td th:text="${payment.payee.nickname}"></td>
+                    <td th:text="${payment.amount}"></td>
+                    <td th:attr="data-payment-id=${payment.id}" th:text="${payment.confirmed ? '已確認' : '待確認'}"></td>
+                    <td>
+                        <form id="confirmForm-${payment.id}" method="post" th:action="@{/bill/confirmPayment}">
+                            <input type="hidden" name="paymentId" th:value="${payment.id}" />
+                            <button type="submit" class="btn btn-success" th:disabled="${payment.confirmed}">確認</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="form-group text-center">
+            <button type="button" class="btn btn-secondary" onclick="goToListPage()">返回</button>
+        </div>
+    </div>
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll("form[id^='confirmForm']").forEach(function(form) {
+                form.addEventListener("submit", function(event) {
+                    event.preventDefault(); // 阻止表單的默認提交行為
+                    const formData = new FormData(form);
+                    const paymentId = formData.get('paymentId');
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: new URLSearchParams(formData) // 使用 URLSearchParams 來正確傳遞表單數據
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // 更新狀態
+                            const statusCell = document.querySelector(`td[data-payment-id="${paymentId}"]`);
+                            if (statusCell) {
+                                statusCell.textContent = '已確認';
+                                const button = form.querySelector('button');
+                                button.disabled = true;
+                            }
+                        } else {
+                            alert('確認付款失敗');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('確認付款失敗');
+                    });
+                });
+            });
+        });
+
+        function goToListPage() {
+            window.location.href = '/bill/list';
+        }
+    </script>
+</body>
+</html>

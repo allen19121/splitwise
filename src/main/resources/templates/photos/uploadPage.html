@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+<meta charset="UTF-8">
+<title>上傳圖片</title>
+</head>
+<body>
+	<div th:replace="~{layout/navbar}"></div>
+
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-6">
+				<h1>上傳圖片</h1>
+
+				<form th:action="@{/photos/uploadPost}" enctype="multipart/form-data" method="post">
+					<div class="mb-3">
+						<label for="exampleInputEmail1" class="form-label">圖片名稱</label> 
+						<input
+							type="text" class="form-control" id="exampleInputEmail1"
+							name="photoName"
+							aria-describedby="emailHelp">
+					</div>
+					<div class="mb-3">
+						<label for="formFile" class="form-label">請選圖片</label> 
+						<input class="form-control" type="file"
+						   name="photoFile"
+							id="formFile">
+					</div>
+
+
+					<button type="submit" class="btn btn-primary">送出</button>
+				</form>
+				
+				<div th:text="${success} ? ${success}"></div>
+				<div th:text="${error} ? ${error}"></div>
+
+
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

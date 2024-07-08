@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+<meta charset="UTF-8">
+<title>新增訊息</title>
+</head>
+<body>
+	<div th:replace="~{layout/navbar}"></div>
+
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-6">
+
+				<h1>新增訊息</h1>
+				<div class="card">
+					<div class="card-header">請輸入訊息</div>
+					<div class="card-body">
+					    <form method="post" th:action="@{/messages/addPost}" enctype="multipart/form-data">
+						    <textarea name="text" class="form-control"></textarea>
+						    <br>
+						    <input type="file" name="photo" class="form-control">
+						    <br>
+						    <input type="submit" class="btn btn-primary" value="送出"/>
+						</form>
+					</div>
+				</div>
+
+				<br>
+				
+				<div class="card">
+					<div class="card-header" th:text="${latestMsg != null ? '最新訊息時間 ' + #dates.format(latestMsg.added, 'yyyy 年 MM 月 dd日 時間:HH:mm:ss EEEE') : ''}"></div>
+					<div class="card-body">
+						<p th:text="${latestMsg != null ? latestMsg.text : ''}"></p>
+						<div th:if="${latestMsg != null && latestMsg.photo != null}">
+							<img th:src="@{/uploads/{photo}(photo=${latestMsg.photo.id})}" alt="最新上傳的照片" class="img-fluid">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>把你的錢給我系統</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .navbar {
+            margin-bottom: 20px;
+        }
+        .welcome-message {
+            font-size: 1.2em;
+            color: #333;
+        }
+        .group-list {
+            margin-top: 20px;
+        }
+        .group-list h2 {
+            font-size: 1.5em;
+            color: #666;
+        }
+        .group-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .group-list li {
+            margin: 10px 0;
+        }
+        .group-list a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .group-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{layout/navbar}" class="navbar"></div>
+    <h1>首頁</h1>
+
+    <div th:if="${session.loginUserId}" th:text="'歡迎 ' + ${session.loginNickname}" class="welcome-message"></div>
+
+    <div class="group-list">
+        <h2>我的群組</h2>
+        <ul>
+            <li th:each="group : ${userGroups}">
+                <a th:href="@{/group/view(groupId=${group.id})}" th:text="${group.name}"></a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

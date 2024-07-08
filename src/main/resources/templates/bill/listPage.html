@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>帳單列表</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+</head>
+<body>
+<div th:replace="~{layout/navbar}"></div>
+<div class="container">
+    <h1>帳單列表</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>店名</th>
+                <th>總金額</th>
+                <th>描述</th>
+                <th>誰先付的</th>
+                <th>平分的金額</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="bill : ${allBills}">
+                <td th:text="${bill.id}"></td>
+                <td th:text="${bill.name}"></td>
+                <td th:text="${bill.amount}"></td>
+                <td th:text="${bill.description}"></td>
+                <td th:text="${bill.payer != null ? bill.payer.nickname : '無'}"></td>
+                <td>
+                    <ul>
+                        <li th:each="payment : ${bill.payments}" th:text="${payment.payee.nickname} + ' - ' + ${payment.amount}"></li>
+                    </ul>
+                </td>
+                <td>
+                    <a th:href="@{/bill/update(id=${bill.id})}" class="btn btn-warning btn-sm">編輯</a>
+                    <a th:href="@{/bill/settleBill(id=${bill.id})}" class="btn btn-success btn-sm">結算</a>
+                    <form th:action="@{/bill/delete(id=${bill.id})}" method="post" style="display:inline">
+                        <input type="hidden" name="_method" value="delete"/>
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('確定要刪除嗎？')">刪除</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="text-center">
+        <a href="/bill/add" class="btn btn-primary">新增帳單</a>
+    </div>
+</div>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

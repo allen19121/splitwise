@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+<meta charset="UTF-8">
+<title>列出訊息</title>
+</head>
+<body>
+	<div th:replace="~{layout/navbar}"></div>
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-6">
+				<h1>列出訊息</h1>
+
+				<th:block th:each="oneMsg : ${page.content}">
+					<div class="card" th:if="${oneMsg != null}">
+						<div class="card-header"
+							th:text="'最新訊息時間 ' + ${#dates.format(oneMsg.added, 'yyyy 年 MM 月 dd日 時間:HH:mm:ss EEEE')}">
+						</div>
+						<div class="card-body">
+						    <p th:text="${oneMsg.users != null ? '作者: ' + oneMsg.users.username : '匿名'}"></p>
+							<p th:text="${oneMsg.text}"></p>
+							<div th:if="${oneMsg.photo != null}">
+								<img th:src="@{/uploads/{photo}(photo=${oneMsg.photo.id})}" alt="最新上傳的照片" class="img-fluid">
+							</div>
+							<div th:if="${oneMsg.users != null}">
+								<div th:if="${oneMsg.users.id == session.loginUserId}" class="edit-place" style="display: flex;">
+									<a th:href="@{/messages/update(id=${oneMsg.id})}" class="btn btn-outline-success btn-sm">修改</a>
+									<span>&nbsp;</span>
+									<form th:action="@{/messages/delete}" th:method="delete">
+										<input name="id" th:value="${oneMsg.id}" hidden />
+										<input type="submit" class="btn btn-outline-danger btn-sm" value="刪除" onclick="return confirm('確定要刪除?')" />
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<br>
+				</th:block>
+
+				<ul class="pagination" th:if="${page.totalPages != 0}">
+					<!-- 上一頁 -->
+					<th:block th:switch="${page.number == 0}">
+						<li th:case="false" class="page-item"><a class="page-link" th:href="@{/messages/page(p=${page.number})}">上一頁</a></li>
+						<li th:case="true" class="page-item disabled" aria-current="page"><a href="#" class="page-link">上一頁</a></li>
+					</th:block>
+
+					<!-- 頁數 -->
+					<th:block th:each="pageNum : ${#numbers.sequence(1, page.totalPages)}">
+						<th:block th:switch="${pageNum != page.number + 1}">
+							<li th:case="true" class="page-item"><a class="page-link" th:href="@{/messages/page(p=${pageNum})}">[[${pageNum}]]</a></li>
+							<li th:case="false" class="page-item active" aria-current="page"><a href="#" class="page-link">[[${pageNum}]]</a></li>
+						</th:block>
+					</th:block>
+
+					<!-- 下一頁 -->
+					<th:block th:switch="${page.number + 1 == page.totalPages}">
+						<li th:case="false" class="page-item"><a class="page-link" th:href="@{/messages/page(p=${page.number + 2})}">下一頁</a></li>
+						<li th:case="true" class="page-item disabled" aria-current="page"><a href="#" class="page-link">下一頁</a></li>
+					</th:block>
+				</ul>
+
+				<div>總共有 [[${page.totalElements}]] 則訊息</div>
+
+			</div>
+		</div>
+	</div>
+</body>
+</html>
