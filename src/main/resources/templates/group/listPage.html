@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>群組列表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .group-list {
+            margin-top: 20px;
+        }
+        .group-list h2 {
+            font-size: 1.5em;
+            color: #666;
+        }
+        .group-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .group-list li {
+            margin: 10px 0;
+        }
+        .group-list a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .group-list a:hover {
+            text-decoration: underline;
+        }
+        .group-actions {
+            margin-left: 10px;
+        }
+        .group-actions form {
+            display: inline;
+        }
+        .back-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{layout/navbar}" class="navbar"></div>
+    <h1>群組列表</h1>
+    <div class="group-list">
+        <ul>
+            <li th:each="group : ${groups}">
+                <a th:href="@{/group/view(groupId=${group.id})}" th:text="${group.name}"></a>
+                <span class="group-actions">
+                    <a th:href="@{/group/view(groupId=${group.id})}" class="btn btn-sm btn-info">查看</a>
+                    <a th:href="@{/group/edit(groupId=${group.id})}" class="btn btn-sm btn-warning">編輯</a>
+                    <form th:action="@{/group/delete}" method="post">
+                        <input type="hidden" name="_method" value="delete"/>
+                        <input type="hidden" name="groupId" th:value="${group.id}"/>
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除這個群組嗎？')">刪除</button>
+                    </form>
+                </span>
+            </li>
+        </ul>
+    </div>
+    <div class="back-button">
+        <a href="/" class="btn btn-secondary">返回首頁</a>
+    </div>
+</body>
+</html>

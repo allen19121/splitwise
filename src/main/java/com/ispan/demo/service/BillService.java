@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.ispan.demo.model.Bill;
 import com.ispan.demo.model.BillRepository;
-import com.ispan.demo.model.Group;
-import com.ispan.demo.model.GroupRepository;
 import com.ispan.demo.model.Payment;
 import com.ispan.demo.model.PaymentRepository;
 import com.ispan.demo.model.Users;
@@ -24,9 +22,6 @@ public class BillService {
 
     @Autowired
     private PaymentRepository paymentRepo;
-
-    @Autowired
-    private GroupRepository groupRepo;
 
     public Bill insertOrUpdateBill(Bill bill) {
         // 確保 amount 不為空
@@ -51,10 +46,6 @@ public class BillService {
         List<Bill> bills = billRepo.findAll();
         System.out.println("Retrieved all bills: " + bills);
         return bills;
-    }
-
-    public List<Bill> findBillsByGroup(Group group) {
-        return billRepo.findByGroupId(group.getId());
     }
 
     public void savePayment(Payment payment) {
@@ -102,27 +93,6 @@ public class BillService {
         return balances;
     }
 
-    public Map<Users, Double> calculateBalancesForGroup(Group group) {
-        List<Bill> bills = findBillsByGroup(group);
-        Map<Users, Double> balances = new HashMap<>();
-
-        for (Bill bill : bills) {
-            Users payer = bill.getPayer();
-            Double billAmount = bill.getAmount() != null ? bill.getAmount() : 0.0;
-            balances.put(payer, balances.getOrDefault(payer, 0.0) - billAmount);
-
-            for (Payment payment : bill.getPayments()) {
-                Users payee = payment.getPayee();
-                Double paymentAmount = payment.getAmount();
-                if (paymentAmount != null) {
-                    balances.put(payee, balances.getOrDefault(payee, 0.0) + paymentAmount);
-                }
-            }
-        }
-
-        return balances;
-    }
-
     public List<Payment> findPendingPayments() {
         return paymentRepo.findByConfirmedFalse();
     }
@@ -134,22 +104,5 @@ public class BillService {
     public Payment findPaymentById(Integer paymentId) {
         Optional<Payment> payment = paymentRepo.findById(paymentId);
         return payment.orElse(null);
-    }
-
-    public Group createOrUpdateGroup(Group group) {
-        return groupRepo.save(group);
-    }
-
-    public Group findGroupById(Integer id) {
-        Optional<Group> optional = groupRepo.findById(id);
-        return optional.orElse(null);
-    }
-
-    public void deleteGroup(Integer id) {
-        groupRepo.deleteById(id);
-    }
-
-    public List<Group> findAllGroups() {
-        return groupRepo.findAll();
     }
 }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>編輯群組</title>
+</head>
+<body>
+<div th:replace="~{layout/navbar}" class="navbar"></div>
+    <h1>編輯群組</h1>
+    <form th:action="@{/group/update}" th:object="${group}" method="post">
+        <input type="hidden" th:field="*{id}"/>
+        <div>
+            <label for="name">群組名稱:</label>
+            <input type="text" id="name" th:field="*{name}" required/>
+        </div>
+        <div>
+            <label>選擇成員:</label>
+            <div th:each="user : ${users}">
+                <input type="checkbox" th:id="${'user_' + user.id}" th:name="userIds" th:value="${user.id}"
+                       th:checked="${group.members.contains(user)}"/>
+                <label th:for="${'user_' + user.id}" th:text="${user.nickname}"></label>
+            </div>
+        </div>
+        <div>
+            <button type="submit">更新群組</button>
+        </div>
+    </form>
+</body>
+</html>

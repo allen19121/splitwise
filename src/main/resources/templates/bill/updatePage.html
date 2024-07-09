@@ -9,7 +9,7 @@
 <div th:replace="~{layout/navbar}"></div>
 <div class="container">
     <h1 class="text-center">更新帳單</h1>
-    <form method="post" th:action="@{/bill/updateSend}" th:object="${bill}" class="form-horizontal">
+    <form method="post" th:action="@{/bill/updateSend}" th:object="${bill}" class="form-horizontal" enctype="multipart/form-data">
         <input type="hidden" th:field="*{id}" />
         <input type="hidden" name="_method" value="post" />
         
@@ -55,31 +55,16 @@
             </div>
         </div>
         <br />
-        
+        <div class="form-group">
+            <label for="image">上傳圖片:</label>
+            <input type="file" id="image" name="image" class="form-control" />
+        </div>
+        <br />
         <div class="form-group text-center">
             <input type="submit" value="更新" class="btn btn-primary" />
             <button type="button" class="btn btn-secondary" onclick="goToListPage()">返回</button>
         </div>
     </form>
-    <hr />
-    <h2 class="text-center">簡易計算機</h2>
-    <div class="form-group">
-        <label for="calculatorInput1">數字 1:</label>
-        <input type="number" id="calculatorInput1" class="form-control" />
-    </div>
-    <br />
-    <div class="form-group text-center">
-        <button class="btn btn-success" onclick="calculateSum()">加</button>
-        <button class="btn btn-success" onclick="calculateDifference()">減</button>
-        <button class="btn btn-success" onclick="calculateProduct()">乘</button>
-        <button class="btn btn-success" onclick="calculateQuotient()">除</button>
-    </div>
-    <br />
-    <div class="form-group">
-        <label for="calculatorInput2">數字 2:</label>
-        <input type="number" id="calculatorInput2" class="form-control" />
-    </div>
-    <h3 class="text-center">結果: <span id="calculatorResult"></span></h3>
 </div>
 
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
@@ -123,34 +108,6 @@
         if (isManual) {
             amountField.value = '';
         }
-    }
-
-    function calculateSum() {
-        const input1 = parseFloat(document.getElementById('calculatorInput1').value);
-        const input2 = parseFloat(document.getElementById('calculatorInput2').value);
-        const result = input1 + input2;
-        document.getElementById('calculatorResult').innerText = result;
-    }
-
-    function calculateDifference() {
-        const input1 = parseFloat(document.getElementById('calculatorInput1').value);
-        const input2 = parseFloat(document.getElementById('calculatorInput2').value);
-        const result = input1 - input2;
-        document.getElementById('calculatorResult').innerText = result;
-    }
-
-    function calculateProduct() {
-        const input1 = parseFloat(document.getElementById('calculatorInput1').value);
-        const input2 = parseFloat(document.getElementById('calculatorInput2').value);
-        const result = input1 * input2;
-        document.getElementById('calculatorResult').innerText = result;
-    }
-
-    function calculateQuotient() {
-        const input1 = parseFloat(document.getElementById('calculatorInput1').value);
-        const input2 = parseFloat(document.getElementById('calculatorInput2').value);
-        const result = input1 / input2;
-        document.getElementById('calculatorResult').innerText = result;
     }
 
     function goToListPage() {

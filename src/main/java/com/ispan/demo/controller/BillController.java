@@ -2,8 +2,6 @@ package com.ispan.demo.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -16,12 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ispan.demo.model.Bill;
-import com.ispan.demo.model.Group;
 import com.ispan.demo.model.Payment;
 import com.ispan.demo.model.Photos;
 import com.ispan.demo.model.Users;
 import com.ispan.demo.service.BillService;
-import com.ispan.demo.service.GroupService;
 import com.ispan.demo.service.PhotoService;
 import com.ispan.demo.service.UserService;
 
@@ -37,21 +33,16 @@ public class BillController {
     @Autowired
     private PhotoService photoService;
 
-    @Autowired
-    private GroupService groupService;
-
     @GetMapping("/bill/add")
-    public String add(@RequestParam("groupId") Integer groupId, Model model) {
+    public String add(Model model) {
         model.addAttribute("bill", new Bill());
-        model.addAttribute("group", groupService.findGroupById(groupId));
         model.addAttribute("users", userService.findAllUsers());
         return "bill/addBillPage";
     }
 
     @GetMapping("/bill/list")
-    public String showAllBills(@RequestParam("groupId") Integer groupId, Model model) {
-        Group group = groupService.findGroupById(groupId);
-        List<Bill> billList = billService.findBillsByGroup(group);
+    public String showAllBills(Model model) {
+        List<Bill> billList = billService.findAllBills();
         billList.forEach(bill -> {
             bill.setPayments(bill.getPayments().stream().peek(payment -> {
                 if (payment.getAmount() != null) {
@@ -59,7 +50,6 @@ public class BillController {
                 }
             }).collect(Collectors.toList()));
         });
-        model.addAttribute("group", group);
         model.addAttribute("allBills", billList);
         return "bill/listPage";
     }
@@ -73,45 +63,33 @@ public class BillController {
     }
 
     @GetMapping("/bill/settle")
-    public String settle(@RequestParam("groupId") Integer groupId, Model model) {
-        Group group = groupService.findGroupById(groupId);
-        Map<Users, Double> balances = billService.calculateBalancesForGroup(group);
+    public String settle(Model model) {
         List<Users> users = userService.findAllUsers();
         List<Payment> pendingPayments = billService.findPendingPayments();
-        List<Bill> allBills = billService.findBillsByGroup(group);
-        model.addAttribute("balances", balances);
+        List<Bill> allBills = billService.findAllBills();
         model.addAttribute("users", users);
         model.addAttribute("pendingPayments", pendingPayments);
         model.addAttribute("allBills", allBills);
-        model.addAttribute("group", group);
-        return "bill/settlePage";
+        return "settle/settlePage"; // 返回正確的視圖名稱
     }
 
     @PostMapping("/bill/addPost")
     public String addPostBill(@ModelAttribute Bill bill, 
-                              @RequestParam("groupId") Integer groupId,
                               @RequestParam(required = false) List<UUID> participantIds, 
                               @RequestParam(required = false) List<Double> amounts, 
                               @RequestParam UUID payerId,
                               @RequestParam boolean isManual,
                               @RequestParam("image") MultipartFile imageFile, 
                               Model model) {
-        Group group = groupService.findGroupById(groupId);
-        if (group == null) {
-            model.addAttribute("errorMsg", "無效的群組ID");
-            return "bill/addBillPage";
-        }
 
         if (participantIds == null || participantIds.isEmpty()) {
             model.addAttribute("errorMsg", "請選擇至少一個參與者");
-            model.addAttribute("group", group);
             model.addAttribute("users", userService.findAllUsers());
             return "bill/addBillPage";
         }
 
         Users payer = userService.findUsersById(payerId);
         bill.setPayer(payer);
-        bill.setGroup(group);
         List<Users> participants = userService.findUsersByIds(participantIds);
         bill.setParticipants(participants);
 
@@ -125,7 +103,6 @@ public class BillController {
             } catch (IOException e) {
                 e.printStackTrace();
                 model.addAttribute("errorMsg", "圖片上傳失敗");
-                model.addAttribute("group", group);
                 return "bill/addBillPage";
             }
         }
@@ -158,7 +135,7 @@ public class BillController {
         }
 
         billService.insertOrUpdateBill(bill);
-        return "redirect:/bill/list?groupId=" + groupId;
+        return "redirect:/bill/list";
     }
 
     @PostMapping("/bill/updateSend")
@@ -223,7 +200,7 @@ public class BillController {
         }
 
         billService.insertOrUpdateBill(existingBill);
-        return "redirect:/bill/list?groupId=" + existingBill.getGroup().getId();
+        return "redirect:/bill/list";
     }
 
     @PostMapping("/bill/repay")

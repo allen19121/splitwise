@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org/">
 <head>
     <meta charset="UTF-8">
-    <title>把你的錢給我系統</title>
+    <title>把你的錢給我系統 - 首頁</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,7 +35,11 @@
         .group-list a:hover {
             text-decoration: underline;
         }
+        .group-actions {
+            margin-left: 10px;
+        }
     </style>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
 </head>
 <body>
     <div th:replace="~{layout/navbar}" class="navbar"></div>
@@ -51,5 +55,66 @@
             </li>
         </ul>
     </div>
+
+    <!-- Button to Open the Create Group Modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+        創建群組
+    </button>
+
+    <!-- Create Group Modal -->
+    <div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createGroupModalLabel">創建群組</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/group/addPost}" th:object="${group}" method="post">
+                        <div class="form-group">
+                            <label for="name">群組名稱:</label>
+                            <input type="text" id="name" class="form-control" th:field="*{name}" required/>
+                        </div>
+                        <div class="form-group">
+                            <label>選擇成員:</label>
+                            <div th:each="user : ${users}">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" th:id="${'user_' + user.id}" th:name="userIds" th:value="${user.id}"/>
+                                    <label class="form-check-label" th:for="${'user_' + user.id}" th:text="${user.nickname}"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-primary">創建群組</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group List -->
+    <div class="group-list">
+        <h2>所有群組</h2>
+        <ul>
+            <li th:each="group : ${groups}">
+                <a th:href="@{/group/view(groupId=${group.id})}" th:text="${group.name}"></a>
+                <span class="group-actions">
+                    <a th:href="@{/group/edit(groupId=${group.id})}" class="btn btn-sm btn-warning">編輯</a>
+                    <form th:action="@{/group/delete}" method="post" style="display:inline;">
+                        <input type="hidden" name="_method" value="delete"/>
+                        <input type="hidden" name="groupId" th:value="${group.id}"/>
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('確定要刪除這個群組嗎？')">刪除</button>
+                    </form>
+                </span>
+            </li>
+        </ul>
+    </div>
+
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

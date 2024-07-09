@@ -35,7 +35,7 @@
                 </td>
                 <td>
                     <a th:href="@{/bill/update(id=${bill.id})}" class="btn btn-warning btn-sm">編輯</a>
-                    <a th:href="@{/bill/settleBill(id=${bill.id})}" class="btn btn-success btn-sm">結算</a>
+                    <a th:href="@{/bill/settle}" class="btn btn-success btn-sm">結算</a> <!-- 修正結算的鏈接 -->
                     <form th:action="@{/bill/delete(id=${bill.id})}" method="post" style="display:inline">
                         <input type="hidden" name="_method" value="delete"/>
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('確定要刪除嗎？')">刪除</button>

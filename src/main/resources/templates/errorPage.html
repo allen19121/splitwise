@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org/">
+<head>
+    <meta charset="UTF-8">
+    <title>錯誤</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .error-container {
+            display: inline-block;
+            text-align: left;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .error-message {
+            font-size: 1.2em;
+            color: #d9534f;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>錯誤</h1>
+        <div class="error-message" th:text="${errorMessage}">未登入的用戶無法創建群組。</div>
+        <a th:href="@{/users/login}" class="back-link">點擊這裡登入</a>
+    </div>
+</body>
+</html>

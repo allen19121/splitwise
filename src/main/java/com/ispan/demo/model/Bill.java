@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -66,10 +64,6 @@ public class Bill {
     @ManyToOne
     @JoinColumn(name = "payer_id")
     private Users payer; // 先付錢的人
-
-    @ManyToOne
-    @JoinColumn(name = "group_id")
-    private Group group;
 
     public Map<Users, Double> getParticipantAmounts() {
         Map<Users, Double> participantAmounts = new HashMap<>();

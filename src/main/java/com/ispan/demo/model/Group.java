@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="group")
+@Table(name = "groups") // 修改表名为 groups
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,7 +27,4 @@ public class Group {
         joinColumns = @JoinColumn(name = "group_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<Users> members = new ArrayList<>();
-
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bill> bills = new ArrayList<>();
 }
